@@ -1,0 +1,80 @@
+@import url(//fonts.googleapis.com/css?family=Ubuntu);
+
+body {
+    margin:0;
+    padding:0;
+    font-family:helvetica, sans-serif;
+}
+
+h1, h2, h3, h4, h5 , h6 {
+    font-family: 'Ubuntu', sans-serif; font-weight:normal;
+}
+
+h1{
+    text-align:center;
+}
+
+a {
+    text-decoration:none;
+    color:#5993bb;
+}
+
+a:hover {
+    color:#77b6e2;
+}
+
+table {
+    width:100%;
+    border-spacing:0;
+    border-collapse: collapse;
+}
+
+table th, table td {
+    text-align:center;
+    font-size:14px;
+    padding:10px;
+    margin:0;
+}
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th,
+  td {
+    padding: 8px 16px;
+    border: 1px solid #ccc;
+  }
+  th {
+    background: #eee;
+  }
+
+  .sheets {
+    width: 400px;
+    table-layout: fixed;
+    border-collapse: collapse;
+  }
+  .sheets tbody {
+    display: block;
+    width: 100%;
+    overflow: auto;
+    height: 100px;
+  }
+  .sheets thead tr {
+    display: block;
+  }
+  .sheets thead {
+    background: black;
+    color: #fff;
+  }
+  .sheets th,
+  .sheets td {
+    padding: 5px;
+    text-align: center;
+    width: 200px;
+  }
+
+  .sheets {
+    margin-left: auto;
+    margin-right: auto;
+  }

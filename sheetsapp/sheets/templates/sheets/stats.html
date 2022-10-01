@@ -1,0 +1,33 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>not google sheets</title>
+    <link href="{% static "css/base.css" %}" rel="stylesheet">
+  </head>
+  <body>
+    <h1>not google sheets</h1>
+    <div id="content">
+    <table>
+      {% for order in sheets_info %}
+      <table class="sheets">
+        <tr>
+            <th>id</th>
+            <th>order №</th>
+            <th>price, usd</th>
+            <th>delivery date</th>
+            <th>price, rub</th>
+        </tr>
+        <tr>
+            <td>{{ order.id }}</td>
+            <td>{{ order.order_number}}</td>
+            <td>{{ order.price_usd|floatformat:"-4" }}</td>
+            <td>{{ order.delivery_date }} </td>
+            <td>{{ order.price_rub|floatformat:"-4" }}</td>
+        </tr>
+      </table>
+      {% endfor %}
+    </div>
+  </body>
+</html>
