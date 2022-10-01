@@ -99,44 +99,74 @@ def main():
         """)
             conn.commit()
             conn.close()
-            print("Database connected successfully")
+            print("Database initialized successfully")
         except:
-            print("Database not connected successfully")
+            print("Database did not initialize successfully")
         while True:
-            try:
-                conn = psycopg2.connect(database=DB_NAME,
-                                        user=DB_USER,
-                                        password=DB_PASSWORD,
-                                        host=DB_HOST,
-                                        port=DB_PORT)
-                cur = conn.cursor()
-                for row in values:
-                    
-                    id = row[0]
+            #try:
+            conn = psycopg2.connect(database=DB_NAME,
+                                    user=DB_USER,
+                                    password=DB_PASSWORD,
+                                    host=DB_HOST,
+                                    port=DB_PORT)
+            cur = conn.cursor()
+
+            cur.execute("SELECT id FROM orders;")
+            existing_ids = cur.fetchall()
+
+            cur.execute("SELECT count(*) FROM orders;")
+            id_count = cur.fetchone()[0]
+
+            print(existing_ids, id_count)
+            for row in values:
+                try:
+                    id = int(row[0])
                     order_number = int(row[1])
                     price_usd = Decimal(row[2])
                     delivery_date = datetime.strptime(row[3], '%d.%m.%Y').date()
-                    currencies = get_currency_rates(ttl_hash=get_ttl_hash())
-                    price_rub = convert_to_rub(price_usd=price_usd, currencies=currencies)
-                    
-                    print(id, order_number, price_usd, delivery_date, price_rub)
+                except:
+                    print('this field is blank or deleted')
+                    continue
 
+                currencies = get_currency_rates(ttl_hash=get_ttl_hash())
+                price_rub = convert_to_rub(price_usd=price_usd, currencies=currencies)
+                
+                print(id, order_number, price_usd, delivery_date, price_rub)
+                s_id = (id,)
+                if s_id not in existing_ids:
+                    if id > id_count:
+                        cur.execute("""
+
+                            INSERT INTO orders (id, order_number, price_usd, delivery_date, price_rub)
+                            VALUES (%s, %s, %s, %s, %s);
+
+                        """, (id, order_number, price_usd, delivery_date, price_rub)
+                        )
+                    else:
+                        cur.execute("""
+
+                            DELETE FROM orders WHERE id = %s;
+
+                        """, (id)
+                        )
+                else:
                     cur.execute("""
 
-                        INSERT INTO orders (id, order_number, price_usd, delivery_date, price_rub)
-                        VALUES (%s, %s, %s, %s, %s)
-                        ON CONFLICT (order_number)
-                        DO UPDATE SET price_usd = Excluded.price_usd, delivery_date = Excluded.delivery_date, price_rub = Excluded.price_rub;
+                            UPDATE orders 
+                            SET order_number = %s, price_usd = %s, delivery_date = %s, price_rub = %s
+                            WHERE id = %s;
 
-                    """, (id, order_number, price_usd, delivery_date, price_rub))
-                conn.commit()
-                conn.close()
-                result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
-                                    range=SAMPLE_RANGE_NAME).execute()
-                values = result.get('values', [])
-                time.sleep(30)
-            except:
-                print("Database not connected successfully")
+                        """, (order_number, price_usd, delivery_date, price_rub, id)
+                        )
+            conn.commit()
+            conn.close()
+
+            time.sleep(30)
+            result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
+                                range=SAMPLE_RANGE_NAME).execute()
+            values = result.get('values', [])
+            # except:
+            #     print("Something went wrong while sheets_script was running")
     except HttpError as err:
         print(err)
 
