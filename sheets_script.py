@@ -25,6 +25,8 @@ DB_PASSWORD = os.environ["DB_PASSWORD"]
 DB_HOST = os.environ["DB_HOST"]
 DB_PORT = os.environ["DB_PORT"]
 
+SLEEPING_TIME = 30 # in seconds
+
 
 @lru_cache()
 def get_currency_rates(ttl_hash=None):  # basically memoization with 4 hours duration
@@ -95,14 +97,14 @@ def main():
             cur.execute(
                 """
         
-                  CREATE TABLE IF NOT EXISTS orders(
-                  id serial PRIMARY KEY NOT NULL,
-                  order_number INT NOT NULL,
-                  price_usd numeric(15,6) NOT NULL,
-                  delivery_date date NOT NULL,
-                  price_rub numeric(15,6) NOT NULL,
-                  UNIQUE(order_number)
-                  );
+                    CREATE TABLE IF NOT EXISTS orders(
+                    id serial PRIMARY KEY NOT NULL,
+                    order_number INT NOT NULL,
+                    price_usd numeric(15,6) NOT NULL,
+                    delivery_date date NOT NULL,
+                    price_rub numeric(15,6) NOT NULL,
+                    UNIQUE(order_number)
+                    );
         """
             )
             conn.commit()
@@ -111,6 +113,7 @@ def main():
         except:
             print("Database did not initialize successfully")
         while True:
+            print('retrieving data...')
             conn = psycopg2.connect(
                 database=DB_NAME,
                 user=DB_USER,
@@ -190,7 +193,7 @@ def main():
             conn.commit()
             conn.close()
 
-            time.sleep(30)
+            time.sleep(SLEEPING_TIME)
             result = (
                 sheet.values()
                 .get(spreadsheetId=SAMPLE_SPREADSHEET_ID, range=SAMPLE_RANGE_NAME)
